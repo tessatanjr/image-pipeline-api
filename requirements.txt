@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pillow
+sqlalchemy
+databases
+aiofiles
+python-multipart
+httpx
+huggingface_hub
