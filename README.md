@@ -40,3 +40,14 @@ Supports JPG and PNG formats. Built with FastAPI, SQLite, and HuggingFace BLIP f
 
 **GET /api/stats**
     - Returns processing stats such as average processing time.
+
+## TESTING
+# To run all tests
+   ```bash
+    PYTHONPATH=. pytest tests/tests_api.py
+# To run a single test (eg list_images end point)
+   ```bash
+    PYTHONPATH=. pytest tests/tests_api.py::test_list_images
+
+
+
