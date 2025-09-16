@@ -13,12 +13,16 @@ Supports JPG and PNG formats. Built with FastAPI, SQLite, and HuggingFace BLIP f
    ```bash
     python3 -m venv image-processing-venv
     source image-processing-venv/bin/activate
-4. Install dependencies:
+3. Install dependencies:
     ```bash
     pip install -r requirements.txt
-6. Run the server
+4. Run the server
    ```bash
     uvicorn app.main:app --reload
+5. Access API Docs
+   ```bash
+    http://127.0.0.1:8000/docs
+
 
 
 # API Documentation
@@ -41,11 +45,12 @@ Supports JPG and PNG formats. Built with FastAPI, SQLite, and HuggingFace BLIP f
 **GET /api/stats**
     - Returns processing stats such as average processing time.
 
-## TESTING
-# To run all tests
+# TESTING
+## To run all tests
    ```bash
     PYTHONPATH=. pytest tests/tests_api.py
-# To run a single test (eg list_images end point)
+   ```
+## To run a single test (eg list_images end point)
    ```bash
     PYTHONPATH=. pytest tests/tests_api.py::test_list_images
 
