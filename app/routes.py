@@ -2,6 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile, File,
 from fastapi.responses import FileResponse
 from pathlib import Path
 from app.services.image_service import process_image, list_images, get_image
+from app.services.database_service import get_processing_stats
 import json
 
 router = APIRouter()
@@ -79,4 +80,9 @@ async def get_thumbnail(image_id: str, size: str):
 
 @router.get("/stats")
 async def get_stats():
-    return {"status": "success", "processed": 0, "failed": 0, "avg_time": 0}
+    stats = get_processing_stats()
+    return {
+        "status": "success",
+        "data": stats,
+        "error": None
+    }

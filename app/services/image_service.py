@@ -1,9 +1,10 @@
 import uuid
 from fastapi import UploadFile, BackgroundTasks
 from pathlib import Path
-from PIL import Image, ExifTags
+from PIL import Image, ExifTags, UnidentifiedImageError
 from transformers import BlipProcessor, BlipForConditionalGeneration
 import torch
+from app.utils.logger import logger
 from app.services.database_service import insert_image, get_all_images, get_image_by_id, update_image_metadata, update_image_thumbnails, update_image_caption, update_image_status, update_image_exif, mark_image_processed
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -50,7 +51,7 @@ async def process_image(file: UploadFile, background_tasks: BackgroundTasks):
 
     insert_image(image_id=image_id, filename=file.filename, status="processing")
 
-    print(f"Saved {file.filename} as {file_path}, ID={image_id}")
+    logger.info(f"Saved {file.filename} as {file_path}, ID={image_id}")
 
     background_tasks.add_task(process_image_in_background, file_path, image_id)
 
@@ -59,39 +60,45 @@ async def process_image(file: UploadFile, background_tasks: BackgroundTasks):
 
 def process_image_in_background(file_path: Path, image_id: str):
     try:
-        img = Image.open(file_path)
+        try:
+            img = Image.open(file_path)
+        except UnidentifiedImageError:
+            logger.error(f"Invalid image file: {file_path}")
+            update_image_status(image_id, "failed")
+            return
         exif = extract_exif(file_path)
         update_image_exif(image_id, exif)
+
         width, height = img.size
         fmt = img.format.lower()
         size_bytes = file_path.stat().st_size
 
         thumbs = {}
         for size_name, size in THUMB_SIZES.items():
-            thumb_path = UPLOAD_DIR / f"{image_id}_{size_name}_{file_path.name}"
-            thumb_img = img.copy()
-            thumb_img.thumbnail(size)
-            thumb_img.save(thumb_path)
-            thumbs[size_name] = str(thumb_path)
+            try:
+                thumb_path = UPLOAD_DIR / f"{image_id}_{size_name}_{file_path.name}"
+                thumb_img = img.copy()
+                thumb_img.thumbnail(size)
+                thumb_img.save(thumb_path)
+                thumbs[size_name] = str(thumb_path)
+            except Exception as e:
+                logger.warning(f"Thumbnail {size_name} failed for {file_path}: {e}")
 
         update_image_metadata(image_id, width, height, fmt, size_bytes)
         update_image_thumbnails(image_id, thumbs["small"], thumbs["medium"])
 
-        update_image_status(image_id, "processed")
+        try:
+            caption = generate_caption(str(file_path))
+            update_image_caption(image_id, caption)
+        except Exception as e:
+            logger.error(f"Caption generation failed for {file_path}: {e}")
 
         mark_image_processed(image_id)
+        logger.info(f"Processing completed successfully for {file_path.name} (ID={image_id})")
 
     except Exception as e:
-        print(f"Error processing image {file_path.name}: {e}")
+        logger.exception(f"Fatal error processing {file_path.name}: {e}")
         update_image_status(image_id, "failed")
-
-    try:
-        caption = generate_caption(str(file_path))
-
-        update_image_caption(image_id, caption)
-
-    except Exception as e:
-        print(f"Error generating caption for {file_path.name}: {e}")
 
     return image_id
 

@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from sqlite3 import Connection
 from datetime import datetime
@@ -94,6 +95,7 @@ def update_image_caption(image_id: str, caption: str):
     conn.close()
 
 def update_image_status(image_id: str, status: str):
+    # to set as processing/failed
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -103,8 +105,6 @@ def update_image_status(image_id: str, status: str):
     """, (status, image_id))
     conn.commit()
     conn.close()
-
-import json
 
 def update_image_exif(image_id: str, exif_data: dict):
     conn = get_connection()
@@ -118,9 +118,6 @@ def update_image_exif(image_id: str, exif_data: dict):
     conn.close()
 
 def mark_image_processed(image_id: str):
-    """
-    Mark an image as processed and update the processed_at timestamp.
-    """
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -131,7 +128,7 @@ def mark_image_processed(image_id: str):
     conn.commit()
     conn.close()
 
-def get_stats():
+def get_processing_stats():
     conn = get_connection()
     cursor = conn.cursor()
 
