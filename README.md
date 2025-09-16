@@ -21,8 +21,8 @@ Supports JPG and PNG formats. Built with FastAPI, SQLite, and HuggingFace BLIP f
     uvicorn app.main:app --reload
 
 
-## API Documentation
-# Endpoints
+# API Documentation
+## Endpoints
 
 **GET /api/images**
     - Returns a list of all images with metadata
