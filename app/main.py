@@ -1,7 +1,9 @@
 from fastapi import FastAPI
+from app.routes import router as image_router
+from app.services.database_service import init_db 
 
-app = FastAPI()
+init_db()
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, Image Pipeline!"}
+app = FastAPI(title = "Image Pipeline API")
+
+app.include_router(image_router, prefix="/api")
