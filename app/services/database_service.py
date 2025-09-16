@@ -26,7 +26,9 @@ def init_db():
         size_bytes INTEGER,
         caption TEXT,
         small_thumb TEXT,
-        medium_thumb TEXT
+        medium_thumb TEXT,
+        exif TEXT,
+        processed_at TIMESTAMP
     )
     """)
     conn.commit()
