@@ -7,16 +7,17 @@ Supports JPG and PNG formats. Built with FastAPI, SQLite, and HuggingFace BLIP f
 ## Installation
 1. Clone the repository:
     ```bash
-    git clone <repo-url>
+    git clone https://github.com/tessatanjr/image-pipeline-api.git
     cd image_pipeline
 2. Create a virtual environment:
+   ```bash
     python3 -m venv image-processing-venv
     source image-processing-venv/bin/activate
-3. Install dependencies:
+4. Install dependencies:
+    ```bash
     pip install -r requirements.txt
-4. Initialize the database:
-    python migrations/init_db.py
-5. Run the server
+6. Run the server
+   ```bash
     uvicorn app.main:app --reload
 
 
